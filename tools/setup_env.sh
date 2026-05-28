@@ -38,7 +38,20 @@ need() {
 
 need curl
 need tar
-need python3
+
+# Prefer python3.13+ (Zephyr requires >= 3.12)
+if command -v python3.13 &>/dev/null; then
+    PYTHON3=python3.13
+elif command -v python3.12 &>/dev/null; then
+    PYTHON3=python3.12
+elif python3 -c "import sys; assert sys.version_info >= (3,12)" 2>/dev/null; then
+    PYTHON3=python3
+else
+    echo "ERROR: Python 3.12+ not found. Zephyr requires Python >= 3.12."
+    echo "       Install with: sudo apt install python3.13"
+    exit 1
+fi
+echo "[ENV] Using ${PYTHON3} ($(${PYTHON3} --version))"
 
 # ── Step 1: Zephyr SDK ────────────────────────────────────────────────────────
 if [ -f "${SDK_DIR}/sdk_version" ]; then
@@ -87,12 +100,12 @@ else
     fi
 
     echo "[VENV] Creating Python venv at ${VENV_DIR}..."
-    python3 -m venv "${VENV_DIR}"
+    "${PYTHON3}" -m venv "${VENV_DIR}"
     # shellcheck disable=SC1091
     source "${VENV_DIR}/bin/activate"
-    pip install --upgrade pip -q
+    pip install --upgrade pip
     echo "[VENV] Installing Zephyr Python requirements..."
-    pip install -r "${ZEPHYR_SCRIPTS}/requirements.txt" -q
+    pip install -r "${ZEPHYR_SCRIPTS}/requirements.txt"
     echo "[VENV] Done."
 fi
 

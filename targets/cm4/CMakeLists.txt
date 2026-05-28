@@ -10,10 +10,10 @@ include("${RTFRAME_ROOT}/cmake/zephyr.cmake")
 
 project(rtframe_cm4 LANGUAGES C CXX ASM)
 
-add_subdirectory("${RTFRAME_ROOT}/core"   "${CMAKE_BINARY_DIR}/core")
-add_subdirectory("${RTFRAME_ROOT}/drivers" "${CMAKE_BINARY_DIR}/drivers")
-add_subdirectory("${RTFRAME_ROOT}/lib"    "${CMAKE_BINARY_DIR}/lib")
-add_subdirectory("${RTFRAME_ROOT}/modules" "${CMAKE_BINARY_DIR}/modules")
+add_subdirectory("${RTFRAME_ROOT}/src/core"    "${CMAKE_BINARY_DIR}/core")
+add_subdirectory("${RTFRAME_ROOT}/src/drivers" "${CMAKE_BINARY_DIR}/drivers")
+add_subdirectory("${RTFRAME_ROOT}/src/lib"     "${CMAKE_BINARY_DIR}/lib")
+add_subdirectory("${RTFRAME_ROOT}/src/modules" "${CMAKE_BINARY_DIR}/modules")
 
 target_sources(app PRIVATE
   "${RTFRAME_ROOT}/src/main_cm4.cpp"
@@ -21,5 +21,5 @@ target_sources(app PRIVATE
 
 target_include_directories(app PRIVATE
   "${RTFRAME_ROOT}/src"
-  "${RTFRAME_ROOT}/core/include"
+  "${RTFRAME_ROOT}/src/core/include"
 )
