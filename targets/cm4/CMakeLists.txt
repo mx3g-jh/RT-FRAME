@@ -5,7 +5,6 @@ get_filename_component(RTFRAME_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE
 include("${RTFRAME_ROOT}/cmake/toolchain.cmake")
 
 set(BOARD vmu_rt1170/mimxrt1176/cm4)
-set(BOARD_DIR "${RTFRAME_ROOT}/boards/nxp/vmu_rt1170" CACHE PATH "" FORCE)
 
 include("${RTFRAME_ROOT}/cmake/zephyr.cmake")
 
