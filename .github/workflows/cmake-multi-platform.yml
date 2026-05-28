@@ -1,0 +1,85 @@
+name: CI Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [cm7, cm4]
+
+    name: build ${{ matrix.target }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y --no-install-recommends \
+          cmake ninja-build device-tree-compiler \
+          python3.13 python3.13-venv python3.13-dev \
+          libpython3-dev gcc g++ curl tar xz-utils
+
+    - name: Cache Zephyr SDK
+      uses: actions/cache@v4
+      id: sdk-cache
+      with:
+        path: toolchain
+        key: zephyr-sdk-1.0.0-arm
+
+    - name: Install Zephyr SDK (arm-zephyr-eabi)
+      if: steps.sdk-cache.outputs.cache-hit != 'true'
+      run: bash tools/setup_env.sh
+
+    - name: Cache Python venv
+      uses: actions/cache@v4
+      id: venv-cache
+      with:
+        path: .venv
+        key: venv-py313-${{ hashFiles('middlewares/zephyr/scripts/requirements.txt') }}
+
+    - name: Setup Python venv
+      if: steps.venv-cache.outputs.cache-hit != 'true'
+      run: |
+        python3.13 -m venv .venv
+        .venv/bin/pip install --upgrade pip
+        .venv/bin/pip install -r middlewares/zephyr/scripts/requirements.txt
+
+    - name: Build ${{ matrix.target }}
+      run: |
+        source .venv/bin/activate
+        export ZEPHYR_BASE="$(pwd)/middlewares/zephyr"
+        export ZEPHYR_MODULES="$(pwd)/hardware/hal_nxp:$(pwd)/hardware/cmsis:$(pwd)/hardware/cmsis_6"
+        cmake -B build/${{ matrix.target }} -S targets/${{ matrix.target }}
+        cmake --build build/${{ matrix.target }} -- -j$(nproc)
+
+    - name: Build report
+      run: |
+        echo "=== Memory usage ==="
+        size build/${{ matrix.target }}/zephyr/zephyr.elf || true
+        echo "=== Output files ==="
+        ls -lh build/${{ matrix.target }}/zephyr/zephyr.{elf,bin,hex} 2>/dev/null || true
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: rtframe-${{ matrix.target }}
+        path: |
+          build/${{ matrix.target }}/zephyr/zephyr.elf
+          build/${{ matrix.target }}/zephyr/zephyr.bin
+          build/${{ matrix.target }}/zephyr/zephyr.hex
