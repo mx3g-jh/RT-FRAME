@@ -69,7 +69,7 @@ jobs:
         source .venv/bin/activate
         export ZEPHYR_BASE="$(pwd)/middlewares/zephyr"
         export ZEPHYR_MODULES="$(pwd)/hardware/hal_nxp:$(pwd)/hardware/cmsis:$(pwd)/hardware/cmsis_6"
-        export ZEPHYR_SDK_INSTALL_DIR="$(pwd)/toolchain/zephyr-sdk-1.0.0"
+        # toolchain auto-detected by cmake/toolchain.cmake via toolchain/zephyr-sdk-*
         cmake -B build/${{ matrix.target }} -S targets/${{ matrix.target }}
         cmake --build build/${{ matrix.target }} -- -j$(nproc)
 
