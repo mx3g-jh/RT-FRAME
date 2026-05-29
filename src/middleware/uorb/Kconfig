@@ -1,0 +1,5 @@
+config RTFRAME_UORB
+    bool "Enable uORB message bus"
+    default n
+    help
+      PX4-style publish/subscribe message bus.

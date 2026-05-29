@@ -1,0 +1,6 @@
+config RTFRAME_ZBUS
+    bool "Enable zbus message bus"
+    default n
+    select ZBUS
+    help
+      Zephyr native zbus publish/subscribe message bus.

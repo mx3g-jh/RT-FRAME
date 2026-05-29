@@ -1,0 +1,5 @@
+source "src/core/Kconfig"
+source "src/lib/Kconfig"
+source "src/drivers/Kconfig"
+source "src/modules/Kconfig"
+source "src/middleware/Kconfig"
