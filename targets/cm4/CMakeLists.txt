@@ -16,7 +16,7 @@ add_subdirectory("${RTFRAME_ROOT}/src/lib"     "${CMAKE_BINARY_DIR}/lib")
 add_subdirectory("${RTFRAME_ROOT}/src/modules" "${CMAKE_BINARY_DIR}/modules")
 
 target_sources(app PRIVATE
-  "${RTFRAME_ROOT}/src/main_cm4.cpp"
+  "${BOARD_DIR}/cm4/main.cpp"
 )
 
 target_include_directories(app PRIVATE
