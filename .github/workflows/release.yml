@@ -12,7 +12,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [cm7, cm4]
+        include:
+          - target: cm7
+            target_dir: targets/nxp/vmu_rt1170/cm7
+            build_dir: build/nxp/vmu_rt1170/cm7
+          - target: cm4
+            target_dir: targets/nxp/vmu_rt1170/cm4
+            build_dir: build/nxp/vmu_rt1170/cm4
 
     name: build ${{ matrix.target }}
 
@@ -61,20 +67,14 @@ jobs:
         .venv/bin/pip install -r middlewares/zephyr/scripts/requirements.txt
 
     - name: Build ${{ matrix.target }}
-      run: |
-        source .venv/bin/activate
-        export ZEPHYR_BASE="$(pwd)/middlewares/zephyr"
-        export ZEPHYR_MODULES="$(pwd)/hardware/hal_nxp:$(pwd)/hardware/cmsis:$(pwd)/hardware/cmsis_6"
-        export ZEPHYR_SDK_INSTALL_DIR="$(pwd)/toolchain/zephyr-sdk-1.0.0"
-        cmake -B build/${{ matrix.target }} -S targets/${{ matrix.target }}
-        cmake --build build/${{ matrix.target }} -- -j$(nproc)
+      run: bash build.sh -p ${{ matrix.target_dir }} -j$(nproc) -b
 
     - name: Package artifacts
       run: |
         TAG="${{ github.ref_name }}"
         mkdir -p dist
         for ext in elf bin hex; do
-          src="build/${{ matrix.target }}/zephyr/zephyr.${ext}"
+          src="${{ matrix.build_dir }}/zephyr/zephyr.${ext}"
           if [ -f "$src" ]; then
             cp "$src" "dist/rtframe-${{ matrix.target }}-${TAG}.${ext}"
           fi

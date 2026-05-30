@@ -17,7 +17,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [cm7, cm4]
+        include:
+          - target: cm7
+            target_dir: targets/nxp/vmu_rt1170/cm7
+            build_dir: build/nxp/vmu_rt1170/cm7
+          - target: cm4
+            target_dir: targets/nxp/vmu_rt1170/cm4
+            build_dir: build/nxp/vmu_rt1170/cm4
 
     name: build ${{ matrix.target }}
 
@@ -66,26 +72,20 @@ jobs:
         .venv/bin/pip install -r middlewares/zephyr/scripts/requirements.txt
 
     - name: Build ${{ matrix.target }}
-      run: |
-        source .venv/bin/activate
-        export ZEPHYR_BASE="$(pwd)/middlewares/zephyr"
-        export ZEPHYR_MODULES="$(pwd)/hardware/hal_nxp:$(pwd)/hardware/cmsis:$(pwd)/hardware/cmsis_6"
-        # toolchain auto-detected by cmake/toolchain.cmake via toolchain/zephyr-sdk-*
-        cmake -B build/${{ matrix.target }} -S targets/${{ matrix.target }}
-        cmake --build build/${{ matrix.target }} -- -j$(nproc)
+      run: bash build.sh -p ${{ matrix.target_dir }} -j$(nproc) -b
 
     - name: Build report
       run: |
         echo "=== Memory usage ==="
-        size build/${{ matrix.target }}/zephyr/zephyr.elf || true
+        size ${{ matrix.build_dir }}/zephyr/zephyr.elf || true
         echo "=== Output files ==="
-        ls -lh build/${{ matrix.target }}/zephyr/zephyr.{elf,bin,hex} 2>/dev/null || true
+        ls -lh ${{ matrix.build_dir }}/zephyr/zephyr.{elf,bin,hex} 2>/dev/null || true
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: rtframe-${{ matrix.target }}
         path: |
-          build/${{ matrix.target }}/zephyr/zephyr.elf
-          build/${{ matrix.target }}/zephyr/zephyr.bin
-          build/${{ matrix.target }}/zephyr/zephyr.hex
+          ${{ matrix.build_dir }}/zephyr/zephyr.elf
+          ${{ matrix.build_dir }}/zephyr/zephyr.bin
+          ${{ matrix.build_dir }}/zephyr/zephyr.hex
