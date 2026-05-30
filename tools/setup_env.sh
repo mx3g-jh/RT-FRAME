@@ -179,6 +179,16 @@ fi
 
 # ── Step 4: Python venv ───────────────────────────────────────────────────────
 if [ -f "${VENV_DIR}/bin/activate" ]; then
+    if ! pip install -r "${ZEPHYR_SCRIPTS}/requirements.txt" --dry-run -q 2>/dev/null; then
+        pip install -r "${ZEPHYR_SCRIPTS}/requirements.txt"
+    fi
+    echo "[VENV] Installing uORB message generator deps (empy/genmsg)..."
+    # empy must be 3.3.x — empy 4.x changed em.Interpreter API, breaks PX4 generator
+    _empy_ver=$(pip show empy 2>/dev/null | awk '/^Version:/{print $2}')
+    if [ "${_empy_ver}" != "3.3.4" ]; then
+        pip uninstall -y empy pyros-genmsg
+        pip install "empy==3.3.4" pyros-genmsg
+    fi
     echo "[VENV] already exists at ${VENV_DIR}, skipping."
 else
     if [ ! -d "${ZEPHYR_SCRIPTS}" ]; then
@@ -196,6 +206,7 @@ else
     pip install -r "${ZEPHYR_SCRIPTS}/requirements.txt"
     echo "[VENV] Installing uORB message generator deps (empy/genmsg)..."
     # empy must be 3.3.x — empy 4.x changed em.Interpreter API, breaks PX4 generator
+    pip uninstall -y empy pyros-genmsg
     pip install "empy==3.3.4" pyros-genmsg
     echo "[VENV] Done."
 fi
