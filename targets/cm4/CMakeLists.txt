@@ -10,6 +10,17 @@ include("${RTFRAME_ROOT}/cmake/zephyr.cmake")
 
 project(rtframe_cm4 LANGUAGES C CXX ASM)
 
-add_subdirectory("${RTFRAME_ROOT}/src" "${CMAKE_BINARY_DIR}/src")
-
 target_sources(app PRIVATE "${BOARD_DIR}/cm4/main.cpp")
+target_include_directories(app PRIVATE "${RTFRAME_ROOT}/src")
+
+# Generate .lss (interleaved source + disassembly) after final link
+set(LSS_FILE ${CMAKE_BINARY_DIR}/zephyr/zephyr.lss)
+set(ELF_FILE ${CMAKE_BINARY_DIR}/zephyr/zephyr.elf)
+
+add_custom_target(gen_lss ALL
+  COMMAND ${CMAKE_OBJDUMP} -S -d ${ELF_FILE} > ${LSS_FILE}
+  DEPENDS ${ELF_FILE}
+  COMMENT "Generating zephyr.lss"
+  VERBATIM
+)
+add_dependencies(gen_lss zephyr_final)

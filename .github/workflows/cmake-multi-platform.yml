@@ -55,13 +55,14 @@ jobs:
       id: venv-cache
       with:
         path: .venv
-        key: venv-py313-${{ hashFiles('middlewares/zephyr/scripts/requirements.txt') }}
+        key: venv-py313-empy3.3.4-${{ hashFiles('middlewares/zephyr/scripts/requirements.txt') }}
 
     - name: Setup Python venv
       if: steps.venv-cache.outputs.cache-hit != 'true'
       run: |
         python3 -m venv .venv
         .venv/bin/pip install --upgrade pip
+        .venv/bin/pip install empy==3.3.4 pyros-genmsg
         .venv/bin/pip install -r middlewares/zephyr/scripts/requirements.txt
 
     - name: Build ${{ matrix.target }}

@@ -30,4 +30,4 @@ void TestRingbuffer::callback()
 	LOG_INF("spsc pop  %u bytes: \"%.*s\"", (unsigned)got, (int)got, out);
 }
 
-RTFRAME_TASK_REGISTER(TestRingbuffer, vwork::configs::sensor, INIT_LEVEL_APP, 1_hz);
+// RTFRAME_TASK_REGISTER(TestRingbuffer, vwork::configs::sensor, INIT_LEVEL_APP, 1_hz);

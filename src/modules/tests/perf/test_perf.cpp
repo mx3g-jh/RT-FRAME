@@ -36,4 +36,4 @@ void TestPerf::callback()
 	perf_print_all();
 }
 
-RTFRAME_TASK_REGISTER(TestPerf, vwork::configs::sensor, INIT_LEVEL_APP, 1_hz);
+// RTFRAME_TASK_REGISTER(TestPerf, vwork::configs::sensor, INIT_LEVEL_APP, 1_hz);

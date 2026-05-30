@@ -30,6 +30,12 @@ set(BOARD_ROOT "${BOARD_ROOT}" CACHE STRING "" FORCE)
 # Inject rtframe as a Zephyr module (provides dts_root)
 list(APPEND ZEPHYR_EXTRA_MODULES "${_repo_root}")
 
+# fatfs module：通过 ZEPHYR_EXTRA_MODULES 注入，zephyr_module.py 会生成正确的
+# zephyr_modules.txt，从而让 Zephyr 主 CMakeLists 执行 modules/fatfs/CMakeLists.txt
+# ZEPHYR_FATFS_MODULE_DIR 同时设置，供 modules/fatfs/CMakeLists.txt 找到 ff.c
+set(ZEPHYR_FATFS_MODULE_DIR "${_repo_root}/hardware/fatfs" CACHE PATH "")
+list(APPEND ZEPHYR_EXTRA_MODULES "${_repo_root}/hardware/fatfs")
+
 if(DEFINED ENV{ZEPHYR_MODULES})
   string(REPLACE ":" ";" _env_modules "$ENV{ZEPHYR_MODULES}")
   list(APPEND ZEPHYR_EXTRA_MODULES ${_env_modules})

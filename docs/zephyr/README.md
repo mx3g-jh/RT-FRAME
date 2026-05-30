@@ -14,6 +14,7 @@
 | [memory.md](memory.md) | 内存管理：系统堆、自定义堆、内存片（`k_mem_slab`） |
 | [zbus.md](zbus.md) | zbus：Zephyr 原生 pub/sub，通道、订阅者、监听者、零拷贝 |
 | [static-registration.md](static-registration.md) | 静态注册宏全览：`K_THREAD_DEFINE`、`SYS_INIT`、`ZBUS_CHAN_DEFINE` 等 |
+| [filesystem.md](filesystem.md) | 文件系统：SD 卡驱动链路、FatFS 挂载、Shell 命令、文件读写 |
 
 ## 快速导航
 
@@ -27,3 +28,4 @@
 - **模块间通信（PX4 风格）** → 见 `src/middleware/uorb/`
 - **编译期静态注册所有对象** → [static-registration.md](static-registration.md)
 - **启动阶段自动初始化** → [static-registration.md](static-registration.md)（SYS_INIT 章节）
+- **SD 卡文件系统 / Shell 文件命令** → [filesystem.md](filesystem.md)
