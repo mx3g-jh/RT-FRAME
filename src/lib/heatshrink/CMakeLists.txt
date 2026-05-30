@@ -1,0 +1,5 @@
+zephyr_library_named(rtframe_heatshrink)
+zephyr_library_sources(heatshrink/heatshrink_decoder.c)
+zephyr_library_compile_definitions(HEATSHRINK_DYNAMIC_ALLOC=0)
+zephyr_library_include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+zephyr_include_directories(${CMAKE_CURRENT_SOURCE_DIR})

@@ -63,15 +63,8 @@ sorted_fields = sorted(spec.parsed_fields(), key=sizeof_field_type, reverse=True
 struct_size, padding_end_size = add_padding_bytes(sorted_fields, search_path)
 }@
 
-#include <inttypes.h>
-#include <px4_platform_common/log.h>
-#include <px4_platform_common/defines.h>
 #include <uORB/topics/@(name_snake_case).h>
 #include <uORB/topics/uORBTopics.hpp>
-#include <drivers/drv_hrt.h>
-#include <lib/drivers/device/Device.hpp>
-#include <lib/matrix/matrix/math.hpp>
-#include <lib/mathlib/mathlib.h>
 
 @{
 queue_length = 1
@@ -84,12 +77,3 @@ for constant in spec.constants:
 static_assert(static_cast<orb_id_size_t>(ORB_ID::@topic) == @(all_topics.index(topic)), "ORB_ID index mismatch");
 ORB_DEFINE(@topic, struct @uorb_struct, @(struct_size-padding_end_size), @(message_hash)u, static_cast<orb_id_size_t>(ORB_ID::@topic), @queue_length);
 @[end for]
-
-void print_message(const orb_metadata *meta, const @uorb_struct& message)
-{
-	if (sizeof(message) != meta->o_size) {
-		printf("unexpected message size for %s: %zu != %i\n", meta->o_name, sizeof(message), meta->o_size);
-		return;
-	}
-	orb_print_message_internal(meta, &message, true);
-}

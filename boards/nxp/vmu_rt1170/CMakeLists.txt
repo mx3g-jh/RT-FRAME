@@ -20,3 +20,7 @@ if(CONFIG_MCUX_GPT_TIMER)
     "This timer will enable lower power modes, but at the cost of reduced "
     "hardware timer resolution")
 endif()
+
+if(CONFIG_NXP_FLEXRAM)
+  zephyr_library_sources(flexram_init.c)
+endif()

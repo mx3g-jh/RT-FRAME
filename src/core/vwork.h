@@ -73,23 +73,52 @@ public:
 	Thread &operator=(const Thread &) = delete;
 	virtual ~Thread() = default;
 
-	/* 启动独立线程。period_us 仅作记录（run() 自己控制节奏），可为 0。 */
 	bool start(uint32_t period_us = 0);
 
 protected:
 	explicit Thread(const config_t &cfg) : _cfg(cfg) {}
 
-	/* 用户实现：线程主体，自己控制循环和节奏。 */
-	virtual void run() = 0;
+	/* 周期模式：只需重写 callback()，基类 run() 负责循环和定时。
+	 * 需要自定义循环（阻塞等待等）时重写 run() 覆盖默认行为。 */
+	virtual void init() {}
+	virtual void callback() {}
+
+	/* 自定义循环模式：重写此函数，自己控制节奏。
+	 * 默认实现：while(true) { callback(); sleep_until_next(); } */
+	virtual void run()
+	{
+		init();
+		while (true) {
+			callback();
+			sleep_until_next();
+		}
+	}
 
 	uint32_t period_us() const { return _period_us; }
+
+	void sleep_until_next()
+	{
+		if (_tick_period_us == 0) {
+			return;
+		}
+		k_sleep(K_TIMEOUT_ABS_TICKS(_next_tick));
+		_next_tick += k_us_to_ticks_ceil64(_tick_period_us);
+	}
 
 private:
 	static void thread_entry(void *p1, void *p2, void *p3);
 
+	void set_period(uint32_t period_us)
+	{
+		_tick_period_us = period_us;
+		_next_tick = k_uptime_ticks() + k_us_to_ticks_ceil64(period_us);
+	}
+
 	const config_t &_cfg;
 	struct k_thread _thread {};
 	uint32_t _period_us{0};
+	uint32_t _tick_period_us{0};
+	int64_t  _next_tick{0};
 	bool _started{false};
 };
 
@@ -110,12 +139,20 @@ public:
 	void trigger();
 
 protected:
-	explicit Event(const config_t &cfg) : _cfg(cfg) {}
+	explicit Event(const config_t &cfg) : _cfg(cfg)
+	{
+		_wrap.self = this;
+		k_work_init(&_wrap.work, work_handler);
+	}
 
 	virtual void init() {}
 	virtual void callback() = 0;
 
 	uint32_t period_us() const { return _period_us; }
+
+	/* 供子类将 k_work 传给外部系统（如 uORB SubscriptionCallbackWorkItem）。
+	 * 构造时即有效，无需等待 start()。 */
+	struct k_work *work_ptr() { return &_wrap.work; }
 
 private:
 	static void work_handler(struct k_work *work);
@@ -130,7 +167,12 @@ private:
 	struct k_work_q *_wq{nullptr};
 	work_wrapper _wrap {};
 	uint32_t _period_us{0};
-	bool _inited{false};
 };
 
 } // namespace vwork
+
+namespace freq_literals
+{
+constexpr uint32_t operator""_hz(unsigned long long hz)  { return static_cast<uint32_t>(1000000ULL / hz); }
+constexpr uint32_t operator""_khz(unsigned long long khz) { return static_cast<uint32_t>(1000ULL / khz); }
+} /* namespace freq_literals */

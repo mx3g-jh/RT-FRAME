@@ -3,3 +3,7 @@ config RTFRAME_UORB
     default n
     help
       PX4-style publish/subscribe message bus.
+
+if RTFRAME_UORB
+rsource "uORB/Kconfig"
+endif

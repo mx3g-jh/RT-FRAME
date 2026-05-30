@@ -1,2 +1,1 @@
-add_subdirectory(demo_pub)
-add_subdirectory(demo_sub)
+add_subdirectory(tests)

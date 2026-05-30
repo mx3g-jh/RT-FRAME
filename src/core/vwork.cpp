@@ -69,6 +69,9 @@ bool Thread::start(uint32_t period_us)
 	}
 
 	_period_us = period_us;
+	if (period_us > 0) {
+		set_period(period_us);
+	}
 
 	k_tid_t tid = k_thread_create(&_thread,
 				      _cfg.stack,
@@ -103,8 +106,7 @@ bool Event::start(uint32_t period_us)
 	}
 
 	_period_us = period_us;
-	_wrap.self = this;
-	k_work_init(&_wrap.work, work_handler);
+	init();
 	return true;
 }
 
@@ -119,12 +121,6 @@ void Event::work_handler(struct k_work *work)
 {
 	work_wrapper *wrap = CONTAINER_OF(work, work_wrapper, work);
 	Event *self = wrap->self;
-
-	if (!self->_inited) {
-		self->init();
-		self->_inited = true;
-	}
-
 	self->callback();
 }
 

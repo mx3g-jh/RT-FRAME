@@ -10,6 +10,7 @@
 #include <zephyr/dt-bindings/led/led.h>
 #include "vmu_rt1170.dtsi"
 #include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/memory-controller/nxp,flexram.h>
 
 / {
 	model = "NXP VMU RT1170";
@@ -527,4 +528,35 @@
 
 zephyr_udc0: &usb1 {
 	status = "okay";
+};
+
+/* FlexRAM: 12 banks ITCM (384KB) + 4 banks DTCM (128KB)
+ * 与 MCUXpresso 默认分配一致：SRAM_ITC_cm7=384K, SRAM_DTC_cm7=128K
+ */
+&flexram {
+	flexram,bank-spec = <FLEXRAM_DTCM
+			     FLEXRAM_DTCM
+			     FLEXRAM_DTCM
+			     FLEXRAM_DTCM
+			     FLEXRAM_ITCM
+			     FLEXRAM_ITCM
+			     FLEXRAM_ITCM
+			     FLEXRAM_ITCM
+			     FLEXRAM_ITCM
+			     FLEXRAM_ITCM
+			     FLEXRAM_ITCM
+			     FLEXRAM_ITCM
+			     FLEXRAM_ITCM
+			     FLEXRAM_ITCM
+			     FLEXRAM_ITCM
+			     FLEXRAM_ITCM>;
+	status = "okay";
+};
+
+&itcm {
+	reg = <0x00000000 DT_SIZE_K(384)>;
+};
+
+&dtcm {
+	reg = <0x20000000 DT_SIZE_K(128)>;
 };

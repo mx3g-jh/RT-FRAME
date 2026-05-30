@@ -175,7 +175,14 @@ CONFIG_RTFRAME_ZBUS=y   # zbus pub/sub（默认开，自动 select ZBUS）
 - 不添加用户未要求的功能或防御性代码
 - 不引入新的抽象层或 helper，除非任务明确需要
 
-**8.5 语言规范**
+**8.5 文件与模块组织**
+- 每个类拆分为 `.h`（声明）+ `.cpp`（实现），不在头文件中实现非 inline 函数
+- 同一模块的文件放在以模块名命名的子目录下，例如 `src/modules/imu/imu.h` + `imu.cpp`
+- 每个 `.cpp` 文件对应一个 `LOG_MODULE_REGISTER`，模块名与目录名一致
+- 不在同一文件中定义多个不相关的类；一个文件一个主类
+- CMakeLists.txt 中用 `zephyr_library_sources` 逐一列出源文件，不用 glob
+
+**8.6 语言规范**
 - `src/` 下所有新文件使用 C++（`.cpp`），不新建 `.c` 文件
 - 例外：直接复用的第三方库、Zephyr C 宏无法在 C++ 中展开的定义文件（如 zbus channel 定义），可使用 `.c`
 - Zephyr C 宏（`ZBUS_CHAN_DEFINE`、`ZBUS_SUBSCRIBER_DEFINE` 等）必须放在 `.c` 文件中，C++ 文件通过 `ZBUS_OBS_DECLARE` 引用

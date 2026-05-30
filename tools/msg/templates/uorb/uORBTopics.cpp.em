@@ -59,7 +59,7 @@ topics_count = len(all_topics)
 
 const constexpr struct orb_metadata *const uorb_topics_list[ORB_TOPICS_COUNT] = {
 @[for idx, topic_name in enumerate(all_topics, 1)]@
-	ORB_ID(@(topic_name))@[if idx != all_topics], @[end if]
+	&__orb_@(topic_name)@[if idx != all_topics], @[end if]
 @[end for]
 };
 

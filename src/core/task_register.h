@@ -3,6 +3,8 @@
 #include <zephyr/kernel.h>
 #include "vwork.h"
 
+using namespace freq_literals;
+
 /* ============================================================
  *  任务启动分级（init_level）
  *
