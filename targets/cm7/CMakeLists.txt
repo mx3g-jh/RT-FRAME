@@ -10,6 +10,5 @@ include("${RTFRAME_ROOT}/cmake/zephyr.cmake")
 
 project(rtframe_cm7 LANGUAGES C CXX ASM)
 
-add_subdirectory("${RTFRAME_ROOT}/src" "${CMAKE_BINARY_DIR}/src")
-
 target_sources(app PRIVATE "${BOARD_DIR}/cm7/main.cpp")
+target_include_directories(app PRIVATE "${RTFRAME_ROOT}/src")

@@ -1,9 +1,8 @@
 #include <zephyr/kernel.h>
-#include <zephyr/sys/printk.h>
+#include "core/rtframe_core.h"
 
 int main(void)
 {
-    printk("rtframe CM7 hello from C++\n");
-
+    rtframe_core_init();
     return 0;
 }

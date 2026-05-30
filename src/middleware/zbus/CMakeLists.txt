@@ -1,3 +1,5 @@
 if(CONFIG_RTFRAME_ZBUS)
-    zephyr_include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+    zephyr_library_named(rtframe_zbus)
+    zephyr_library_sources(rtframe_channels.c)
+    zephyr_library_include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 endif()

@@ -1,5 +1,6 @@
 name: rtframe
 build:
+  cmake: src
   kconfig: src/Kconfig
   settings:
     dts_root: .
