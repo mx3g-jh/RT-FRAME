@@ -12,6 +12,8 @@
 | [messaging.md](messaging.md) | 消息传递：消息队列（`k_msgq`）、邮箱、管道 |
 | [logging.md](logging.md) | 日志系统：`LOG_INF` / `LOG_ERR` 用法与 Kconfig 配置 |
 | [memory.md](memory.md) | 内存管理：系统堆、自定义堆、内存片（`k_mem_slab`） |
+| [zbus.md](zbus.md) | zbus：Zephyr 原生 pub/sub，通道、订阅者、监听者、零拷贝 |
+| [static-registration.md](static-registration.md) | 静态注册宏全览：`K_THREAD_DEFINE`、`SYS_INIT`、`ZBUS_CHAN_DEFINE` 等 |
 
 ## 快速导航
 
@@ -21,4 +23,7 @@
 - **临界区保护** → [sync.md](sync.md)
 - **日志输出** → [logging.md](logging.md)
 - **动态内存** → [memory.md](memory.md)
-- **模块间通信（uORB / zbus）** → 见 `docs/rules/layer-usage.md`
+- **模块间广播通信（Zephyr 原生）** → [zbus.md](zbus.md)
+- **模块间通信（PX4 风格）** → 见 `src/middleware/uorb/`
+- **编译期静态注册所有对象** → [static-registration.md](static-registration.md)
+- **启动阶段自动初始化** → [static-registration.md](static-registration.md)（SYS_INIT 章节）
