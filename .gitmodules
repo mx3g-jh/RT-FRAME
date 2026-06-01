@@ -13,3 +13,6 @@
 [submodule "hardware/fatfs"]
 	path = hardware/fatfs
 	url = https://github.com/zephyrproject-rtos/fatfs
+[submodule "src/modules/mavlink/mavlink"]
+	path = src/modules/mavlink/mavlink
+	url = https://github.com/mx3g-jh/mavlink.git
