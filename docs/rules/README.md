@@ -6,11 +6,11 @@
 
 | 文件 | 内容 |
 | ---- | ---- |
-| [constraints.md](constraints.md) | **所有 10 条强约束**的完整定义与详细解释（从这里开始读） |
-| [progressive-migration.md](progressive-migration.md) | 规则 10：渐进迁移开发流程四阶段规范 |
-| [layer-usage.md](layer-usage.md) | 规则 6：分层架构期望状态与使用规范 |
-| [cmake-rules.md](cmake-rules.md) | 规则 5：CMake 层隔离抽象函数规范 |
-| [git-commit.md](git-commit.md) | 规则 1：Git 提交格式规范 |
+| [constraints.md](constraints.md) | **所有 11 条强约束**的完整定义与详细解释（从这里开始读） |
+| [progressive-migration.md](progressive-migration.md) | 渐进迁移开发流程四阶段规范 |
+| [layer-usage.md](layer-usage.md) | 分层架构期望状态与使用规范 |
+| [cmake-rules.md](cmake-rules.md) | CMake 层隔离抽象函数规范 |
+| [git-commit.md](git-commit.md) | Git 提交格式规范 |
 | [plans/SUMMARY.md](plans/SUMMARY.md) | 所有计划的汇总索引（状态总览） |
 
 ## 快速导航

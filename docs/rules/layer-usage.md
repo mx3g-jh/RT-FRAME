@@ -10,12 +10,17 @@ rtframe 采用 PX4 启发的分层架构，基于 Zephyr RTOS 原生机制实现
 ┌──────────────────────────────────────────────┐
 │           应用层 (modules)                    │  src/modules/
 │  业务逻辑，通过通信中间件与其他模块通信         │
+│  mavlink/：MAVLink 协议栈                    │
+│  logger/：SD 日志 + MAVLink 回传              │
+│  param_loader/：参数定时保存                  │
 ├──────────────────────────────────────────────┤
 │           通信中间件层 (middleware)            │  src/middleware/
-│  uORB、zbus、MAVLink 等（各自独立，按需启用）  │
+│  uORB、zbus（各自独立，按需启用）            │
+│  MAVLink 不在此层（见 modules）              │
 ├──────────────────────────────────────────────┤
 │           通用库层 (lib)                      │  src/lib/
 │  算法、数据结构、工具库，与平台无关             │
+│  含 mavlink_log、console_buffer、sd_bench 等  │
 ├──────────────────────────────────────────────┤
 │           驱动抽象层 (drivers)                │  src/drivers/
 │  封装 Zephyr 驱动 API，屏蔽芯片差异           │
@@ -67,7 +72,8 @@ rtframe 采用 PX4 启发的分层架构，基于 Zephyr RTOS 原生机制实现
 | ------ | ---- | ------- | ---- |
 | `uorb/` | PX4 风格 pub/sub | `CONFIG_RTFRAME_UORB` | 开 |
 | `zbus/` | Zephyr 原生 pub/sub | `CONFIG_RTFRAME_ZBUS` | 开 |
-| `mavlink/`（待添加） | MAVLink 串行协议 | `CONFIG_RTFRAME_MAVLINK` | 关 |
+
+MAVLink 协议栈在 `src/modules/mavlink/`，不属于 middleware 层，由 `CONFIG_RTFRAME_MAVLINK` 控制。
 
 新增通信协议在此目录下新建子目录，提供独立 Kconfig，默认关闭。
 
@@ -77,7 +83,7 @@ rtframe 采用 PX4 启发的分层架构，基于 Zephyr RTOS 原生机制实现
 
 具体业务逻辑，每个模块通常运行在独立 Zephyr 线程中。
 
-包含：姿态估计、飞控控制律、传感器融合、状态机、遥控解析等。
+包含：mavlink（MAVLink 协议栈）、logger（日志模块）、param_loader（参数加载/保存）等。
 
 推荐通过 `middleware` 与其他模块通信，直接调用也允许（业务复杂时不强制解耦）。
 

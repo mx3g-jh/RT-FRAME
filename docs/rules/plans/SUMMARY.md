@@ -17,6 +17,7 @@
 | 计划文件 | 标题 | 完成日期 |
 | -------- | ---- | -------- |
 | [sd-filesystem-shell.md](sd-filesystem-shell.md) | SD 卡文件系统 + Shell 集成 | 2026-05-31 |
+| (implicit) | Kconfig/CMake 层级化重构 | 2026-06-02 |
 
 ---
 

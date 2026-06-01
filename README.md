@@ -15,6 +15,12 @@ Zephyr-based firmware for **vmu_rt1170** (NXP i.MX RT1176, Cortex-M7 + Cortex-M4
 - One-command environment bootstrap: `bash tools/setup_env.sh`
 - JLink flashing via `make flash_cm7` / `make flash_cm4`
 - Console UART at **921600 baud** (lpuart1)
+- Parameter system: persistent key-value store with auto-save workqueue
+- MAVLink protocol stack: pub/sub, FTP, param sync, ulog streaming, shell
+- Logger module: SD file logging (ULog) + MAVLink streaming, auto cleanup
+- Console buffer: ringbuffer + printk hook, POSIX write/read interface
+- SD benchmark: SDIO DMA mode read/write speed test
+- Hierarchical Kconfig: per-module master switches (RTFRAME_CORE, RTFRAME_LIB, RTFRAME_MODULES, etc.)
 
 ---
 
@@ -114,10 +120,19 @@ rtframe/
 ├── src/
 │   ├── core/               # System foundation (event bus, logging, params)
 │   ├── modules/            # Hardware-agnostic application modules
+│   │   ├── mavlink/       # MAVLink protocol (git submodule mavlink/mavlink/)
+│   │   ├── logger/        # SD log (ULog) + MAVLink streaming
+│   │   ├── param_loader/  # Parameter periodic save task
+│   │   └── tests/         # Demo pub/sub, perf, ringbuffer, param, sdcard
 │   ├── drivers/            # Hardware abstraction over Zephyr drivers
-│   ├── lib/                # Pure algorithm libraries (no OS dependency)
-│   ├── main.cpp            # CM7 entry point
-│   └── main_cm4.cpp        # CM4 entry point
+│   ├── lib/                # Pure algorithm libraries
+│   │   ├── mavlink_log/   # MAVLink log broadcast (severity + vasprintf)
+│   │   ├── console_buffer/ # ringbuffer + printk hook, POSIX write/read
+│   │   ├── sd_bench/      # SD speed benchmark
+│   │   └── ...
+│   ├── middleware/         # Communication middleware
+│   │   ├── uorb/          # PX4-style pub/sub
+│   │   └── zbus/          # Zephyr native pub/sub
 ├── targets/
 │   ├── cm7/                # CM7 CMakeLists.txt + prj.conf
 │   └── cm4/                # CM4 CMakeLists.txt + prj.conf
@@ -138,6 +153,7 @@ rtframe/
 | `hardware/hal_nxp` | [zephyrproject-rtos/hal_nxp](https://github.com/zephyrproject-rtos/hal_nxp) | NXP HAL |
 | `hardware/cmsis` | [zephyrproject-rtos/cmsis](https://github.com/zephyrproject-rtos/cmsis) | CMSIS |
 | `hardware/cmsis_6` | [zephyrproject-rtos/CMSIS_6](https://github.com/zephyrproject-rtos/CMSIS_6) | CMSIS6 |
+| `src/modules/mavlink/mavlink` | [mavlink/mavlink](https://github.com/mavlink/mavlink) | MAVLink C library (protocol definitions, parser) |
 
 Update submodules to latest tracked commit:
 

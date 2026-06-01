@@ -42,16 +42,19 @@
 │           应用层 (modules)                    │  src/modules/
 │  业务逻辑，通过通信中间件与其他模块通信         │
 │  不直接调用驱动，不直接操作硬件                │
+│  mavlink/：MAVLink 协议栈（pub/sub/FTP/日志） │
+│  logger/：SD 日志 + MAVLink 回传              │
+│  param_loader/：参数定时保存任务               │
 ├──────────────────────────────────────────────┤
 │           通信中间件层 (middleware)            │  src/middleware/
 │  uORB（PX4 风格 pub/sub）                    │
-│  zbus（Zephyr 原生 pub/sub）                 │
-│  MAVLink、自定义协议等（按需添加）             │
+│  zbus（Zephyr 原生 pub/sub）                  │
 │  各协议均为独立子目录，由 Kconfig 控制         │
 ├──────────────────────────────────────────────┤
 │           通用库层 (lib)                      │  src/lib/
 │  与平台无关的算法、数据结构、工具库            │
 │  不依赖硬件，不依赖通信中间件                  │
+│  含 mavlink_log、console_buffer、sd_bench 等  │
 ├──────────────────────────────────────────────┤
 │           驱动抽象层 (drivers)                │  src/drivers/
 │  Zephyr 驱动 API 封装，屏蔽芯片差异           │
@@ -123,11 +126,27 @@ CONFIG_RTFRAME_UORB=y   # uORB pub/sub（默认开）
 CONFIG_RTFRAME_ZBUS=y   # zbus pub/sub（默认开，自动 select ZBUS）
 ```
 
-新增通信协议（如 MAVLink）在 `src/middleware/` 下新建子目录，提供独立 Kconfig，默认关闭，按需启用。
+MAVLink 不属于 middleware 层，是 `src/modules/mavlink/` 中的独立模块，由 `CONFIG_RTFRAME_MAVLINK` 控制。
 
 ---
 
-## 规则 6 — 新 Board 添加流程
+## 规则 6 — Kconfig 层级化
+
+`src/` 下每个子目录必须有对应的 `Kconfig` 文件，父目录通过 `rsource` 引入。CMakeLists.txt 通过 `add_subdirectory_ifdef()` 实现条件编译。
+
+|| Master Switch | 控制范围 | 默认（CM7） | 默认（CM4） |
+| -- | -- | -- | -- | -- |
+| `CONFIG_RTFRAME_CORE` | src/core/ | 开 | 开 |
+| `CONFIG_RTFRAME_LIB` | src/lib/ | 开 | 开 |
+| `CONFIG_RTFRAME_DRIVERS` | src/drivers/ | 开 | 开 |
+| `CONFIG_RTFRAME_MODULES` | src/modules/ | 开 | 关 |
+| `CONFIG_RTFRAME_MIDDLEWARE` | src/middleware/ | 开 | 关 |
+
+详见 [`layer-usage.md`](layer-usage.md)。
+
+---
+
+## 规则 8 — 新 Board 添加流程
 
 1. 在 `boards/<vendor>/<board>/` 下创建目录结构（参考 用户指定的`middlewares/zephyr/boards`）
 2. 提供 `<board>.yaml`、`<board>_defconfig`、`<board>.dts`、`<board>.dtsi`、`board.cmake`等
@@ -153,36 +172,36 @@ CONFIG_RTFRAME_ZBUS=y   # zbus pub/sub（默认开，自动 select ZBUS）
 
 ---
 
-## 规则 8 — AI Coding 约束（强制）
+## 规则 9 — AI Coding 约束（强制）
 
-**8.1 禁止自作主张改变架构**
+**9.1 禁止自作主张改变架构**
 - 不得在未经用户确认的情况下引入新的中间件、框架或依赖
 - 不得修改 `CMakeLists.txt` 的顶层结构（`targets/`、`cmake/`）
 - 不得修改 `.gitmodules` 或 submodule 指向
 
-**8.2 禁止跨层污染**
+**9.2 禁止跨层污染**
 - 不得在 `src/lib/` 或 `src/drivers/` 中引入对 `src/modules/` 的依赖
 - 不得在任何层直接 include `fsl_*.h` 或操作寄存器
 - 不得绕过 Zephyr 驱动 API 直接访问硬件
 
-**8.3 重大改动必须先规划**
+**9.3 重大改动必须先规划**
 - 涉及 3 个以上文件的改动，必须先在 `docs/rules/plans/` 写计划
 - 改动 DTS / Kconfig / CMakeLists.txt 必须说明原因
 - 不得删除或重命名现有公共接口，除非用户明确要求
 
-**8.4 代码风格**
+**9.4 代码风格**
 - 不写无意义注释（不解释"做了什么"，只写"为什么"）
 - 不添加用户未要求的功能或防御性代码
 - 不引入新的抽象层或 helper，除非任务明确需要
 
-**8.5 文件与模块组织**
+**9.5 文件与模块组织**
 - 每个类拆分为 `.h`（声明）+ `.cpp`（实现），不在头文件中实现非 inline 函数
 - 同一模块的文件放在以模块名命名的子目录下，例如 `src/modules/imu/imu.h` + `imu.cpp`
 - 每个 `.cpp` 文件对应一个 `LOG_MODULE_REGISTER`，模块名与目录名一致
 - 不在同一文件中定义多个不相关的类；一个文件一个主类
 - CMakeLists.txt 中用 `zephyr_library_sources` 逐一列出源文件，不用 glob
 
-**8.6 语言规范**
+**9.6 语言规范**
 - `src/` 下所有新文件使用 C++（`.cpp`），不新建 `.c` 文件
 - 例外：直接复用的第三方库、Zephyr C 宏无法在 C++ 中展开的定义文件（如 zbus channel 定义），可使用 `.c`
 - Zephyr C 宏（`ZBUS_CHAN_DEFINE`、`ZBUS_SUBSCRIBER_DEFINE` 等）必须放在 `.c` 文件中，C++ 文件通过 `ZBUS_OBS_DECLARE` 引用
